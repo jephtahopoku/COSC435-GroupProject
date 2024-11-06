@@ -22,7 +22,7 @@ struct LoginView : View {
               VStack(spacing: 30){
                   TextField("Username", text: $username)
                       .padding(.all)
-                      .foregroundStyle(Color(.white/*hex: "#333333"*/))
+                      .foregroundStyle(Color(.black/*hex: "#333333"*/))
                       .background(
 //                        RoundedRectangle(cornerRadius: 5)
 //                            .stroke(Color(hex: "#007AFF"))
