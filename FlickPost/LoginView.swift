@@ -10,46 +10,86 @@ import SwiftUI
 struct LoginView : View {
     @State var username: String = ""
     @State var password: String = ""
+    @State private var isPasswordVisible: Bool = false
   var body: some View {
       ScrollView{
           Spacer(minLength: 30)
           Text("FlickPost")
               .padding(.all)
-              .font(.system(size: 40, weight: .bold))
+              .font(.system(size: 40, weight: .bold, design: .serif))
               .bold()
-              .foregroundStyle(Color(hex: "#333333"))
-          
-          VStack(spacing: 30){
-              TextField("Username", text: $username)
-                  .padding(.all)
-                  .foregroundStyle(Color(hex: "#333333"))
-                  .background(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(Color(hex: "#007AFF"))
-                  )
-              TextField("Password", text: $password)
-                  .padding(.all)
-                  .foregroundStyle(Color(hex: "#333333"))
-                  .background(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(Color(hex: "#007AFF"))
-                  )
-              HStack{
-                  Button(action:{}){
-                      Text("Login")
-                          .foregroundStyle(Color(hex: "#A29BFE"))
-                          .padding(.all)
+              .foregroundStyle(Color(.white/*hex: "#333333"*/))
+              VStack(spacing: 30){
+                  TextField("Username", text: $username)
+                      .padding(.all)
+                      .foregroundStyle(Color(.white/*hex: "#333333"*/))
+                      .background(
+//                        RoundedRectangle(cornerRadius: 5)
+//                            .stroke(Color(hex: "#007AFF"))
+                        Color.white
+                      )
+                      .cornerRadius(5)
+                      .padding(.horizontal)
+                  ZStack{
+                      if isPasswordVisible{
+                          TextField("Password", text: $password)
+                              .padding(.all)
+                              .foregroundStyle(Color(hex: "#333333"))
+                              .background(
+                                //                        RoundedRectangle(cornerRadius: 5)
+                                //                            .stroke(Color(hex: "#007AFF"))
+                                Color.white
+                              )
+                              .cornerRadius(5)
+                              .padding(.horizontal)
+                          
+                      } else {
+                          SecureField("Password", text: $password)
+                              .padding(.all)
+                              .foregroundStyle(Color(hex: "#333333"))
+                              .background(
+                                //                        RoundedRectangle(cornerRadius: 5)
+                                //                            .stroke(Color(hex: "#007AFF"))
+                                Color.white
+                              )
+                              .cornerRadius(5)
+                              .padding(.horizontal)
+                      }
+                      
+                      HStack {
+                          Spacer()
+                          Button(action: {
+                                isPasswordVisible.toggle()
+                          }) {
+                              Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                                    .foregroundColor(.gray)
+                              }
+                              .padding(.trailing, 20)
+                      }
                   }
-                  NavigationLink(destination: CreateAccountView(), label: {
-                      Text("Register")
-                          .foregroundStyle(Color(hex: "#A29BFE"))
-                          .padding(.all)
-                  })
+                  
+                  HStack {
+                      Button(action:{}){
+                          Text("Login")
+                              .foregroundStyle(Color(.white/*hex: "#A29BFE"*/))
+                              .padding(.all)
+                      }
+                      NavigationLink(destination: CreateAccountView(), label: {
+                          Text("Register")
+                              .foregroundStyle(Color(.white/*hex: "#A29BFE"*/))
+                              .padding(.all)
+                      })
+                  }
               }
           }
-      }
-      .background(Color(hex: "#F8F8F8"))
-          
+          .background(
+            LinearGradient (
+                gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .edgesIgnoringSafeArea(.all)
+            /*Color(hex: "#F8F8F8")*/)
       }
     }
 
