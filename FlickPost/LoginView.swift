@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
+import Firebase
+import FirebaseAuth
 
 struct LoginView : View {
     @State var username: String = ""
     @State var password: String = ""
     @State private var isPasswordVisible: Bool = false
+    @ObservedObject var viewModel = LoginViewModel()
   var body: some View {
       ScrollView{
           Spacer(minLength: 30)
