@@ -10,9 +10,6 @@ import SwiftUI
 
 @main
 struct FlickPostApp: App {
-    
- 
-    
     var body: some Scene {
         WindowGroup {
             LoginView()
