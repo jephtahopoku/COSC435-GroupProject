@@ -12,24 +12,16 @@ class PostViewModel: ObservableObject {
     @Published var isLoading : Bool = false
     
     func getData() {
-        isLoading = true
-        guard let url = URL(string: "https://randomuser.me/api/?results=25")else {return}
-        
-        URLSession.shared.dataTask(with: url) {data, response, error in
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode) else { return }
-            if let data = data {
-                do {
-                    let decodedData = try JSONDecoder().decode([Post].self, from: data)
-                    DispatchQueue.main.async {
-                        self.posts = decodedData
-                        self.isLoading = false
-                    }
-                } catch{
-                    print("Error Decoding JSON \(error.localizedDescription)")
-                }
-            }
-            
-        }.resume()
-    }
+        guard let url = URL(string: "https://jsonplaceholder.typicode.com/posts") else { return }
+               
+               URLSession.shared.dataTask(with: url) { data, response, error in
+                   if let data = data {
+                       if let decodedPosts = try? JSONDecoder().decode([Post].self, from: data) {
+                           DispatchQueue.main.async {
+                               self.posts = decodedPosts
+                           }
+                       }
+                   }
+               }.resume()
+       }
 }

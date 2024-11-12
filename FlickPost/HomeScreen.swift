@@ -9,31 +9,60 @@ import SwiftUI
 
 struct HomeScreenView : View {
 @ObservedObject var viewModel = PostViewModel()
+
     var body: some View {
         NavigationView {
-            ScrollView{
-                List (viewModel.posts){post in
-                    Text(post.username)
-                    }
-                }
-                    .navigationTitle("FlickPost")
-                    .navigationBarTitleDisplayMode(.large)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(action: {}) {
+                VStack {
+                    List(viewModel.posts){post in
+                        Text(post.username)
+                        AsyncImage(url: URL(string: "\(post.imageUrl)")){Image in
+                            Image
+                                .image?.scaledToFit()
+                        }
+                        HStack {
+                            Button (action: {}){
                                 Image(systemName: "heart")
                                     .foregroundStyle(.black)
                             }
+                            Text("\(post.likes)")
+                        }
+                    Text("\(post.username) \(post.title)")
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .listStyle(PlainListStyle())
+                    .listRowInsets(EdgeInsets())
+                }
+                .background(
+                    LinearGradient (
+                    gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .edgesIgnoringSafeArea(.all)
+                    )
+                .navigationTitle("FlickPost")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {}) {
+                            Image(systemName: "heart")
+                                .foregroundStyle(.black)
+                }
+            }
+                    ToolbarItem(placement: .topBarTrailing){
+                        Button(action: {}){
+                            Image(systemName: "message")
+                                .foregroundStyle(.black)
                         }
                     }
-        } .onAppear{
+        }
+        }
+        .onAppear {
             viewModel.getData()
-        }
-        }
-        
+                }
+            }
     }
-
-
 #Preview {
     HomeScreenView()
 }

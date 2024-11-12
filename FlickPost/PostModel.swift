@@ -8,9 +8,19 @@
 import SwiftUI
 
 struct Post : Codable, Identifiable {
-    var id: UUID = UUID()
-    let username: String
-    let image: String
-    let caption: String
-    let timestamp: Date
+        let id: Int
+        let userId: Int
+        let title: String
+        let body: String
+        
+        // Additional Instagram-like properties
+        var imageUrl: String {
+            "https://picsum.photos/id/\(id)/400/400"
+        }
+        var likes: Int {
+            Int.random(in: 100...10000)
+        }
+        var username: String {
+            "user_\(userId)"
+        }
 }
