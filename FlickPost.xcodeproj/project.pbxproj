@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A05B8E92CE5549500945EEA /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5A05B8E82CE5548D00945EEA /* .gitignore */; };
 		E3132BA82CDC6C7B000BD432 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E3132BA72CDC6C7B000BD432 /* FirebaseAnalytics */; };
 		E3132BAA2CDC6C7B000BD432 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = E3132BA92CDC6C7B000BD432 /* FirebaseAnalyticsOnDeviceConversion */; };
 		E3132BAC2CDC6C7B000BD432 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = E3132BAB2CDC6C7B000BD432 /* FirebaseAnalyticsWithoutAdIdSupport */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5A05B8E82CE5548D00945EEA /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		E3132A402CD9BC48000BD432 /* FlickPost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlickPost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3132A502CD9BC4B000BD432 /* FlickPostTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlickPostTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3132A5A2CD9BC4B000BD432 /* FlickPostUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlickPostUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,6 +132,7 @@
 		E3132A372CD9BC48000BD432 = {
 			isa = PBXGroup;
 			children = (
+				5A05B8E82CE5548D00945EEA /* .gitignore */,
 				E3132A422CD9BC48000BD432 /* FlickPost */,
 				E3132A5D2CD9BC4B000BD432 /* FlickPostUITests */,
 				E3132A412CD9BC48000BD432 /* Products */,
@@ -279,6 +282,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A05B8E92CE5549500945EEA /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
