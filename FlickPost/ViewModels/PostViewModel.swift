@@ -24,4 +24,7 @@ class PostViewModel: ObservableObject {
                    }
                }.resume()
        }
+    func handleDoubleTap() {
+        
+    }
 }
