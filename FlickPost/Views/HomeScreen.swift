@@ -12,9 +12,9 @@ struct HomeScreenView : View {
 @ObservedObject var viewModel = PostViewModel()
 @State var isDoubledTapped: Bool = false
 @State var presentSearch : Bool = false
+@State private var isProfilePageViewActive: Bool = false
 @State var selectedPost : Post? = nil
 @State var photoPickerItem : PhotosPickerItem? = nil
-    
 
     var body: some View {
         NavigationView {
@@ -82,7 +82,9 @@ struct HomeScreenView : View {
                                 .foregroundStyle(.black)
                                 .frame(maxWidth:.infinity)
                         })
-                        Button(action: {}){
+                        Button(action: {
+                            isProfilePageViewActive.toggle()
+                        }){
                             Image(systemName: "person.circle")
                                 .font(.system(size: 30))
                                 .foregroundStyle(.black)
@@ -110,6 +112,10 @@ struct HomeScreenView : View {
         viewModel.getData()
     }.sheet(isPresented: $presentSearch){
             SearchPageView()
+    }
+    .sheet(isPresented: $isProfilePageViewActive){
+        ProfilePageView()
+            .presentationDetents([.large])
     }
     }
 }
