@@ -21,8 +21,9 @@ struct CreateAccountView: View {
                 
                 Text("FlickPost")
                     .font(.system(size: 40, weight: .bold, design: .serif))
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                 Text("Create an account to get started.")
+                    .foregroundColor(.white)
                     
                 
                 VStack(spacing: 15) {
@@ -79,16 +80,20 @@ struct CreateAccountView: View {
                     Text("Create Account")
                         .foregroundColor(.white)
                         .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(5)
-                        .padding(.horizontal, 16)
                 }
                 
                 Spacer()
             }
-            .background(Color.white)
-            .edgesIgnoringSafeArea(.all)
+            .background(
+                LinearGradient (
+                    gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .edgesIgnoringSafeArea(.all)
+            )
+//            .background(Color.white)
+//            .edgesIgnoringSafeArea(.all)
         }
     }
 }
