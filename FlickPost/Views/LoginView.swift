@@ -4,50 +4,46 @@
 //
 //  Created by Tyler Watkins on 11/4/24.
 //
-
 import SwiftUI
+import FirebaseAuth
 
-
-struct LoginView : View {
+struct LoginView: View {
     @State var username: String = ""
     @State var password: String = ""
     @State private var isPasswordVisible: Bool = false
-    @State private var isLoginSuccessful: Bool = false
-    @ObservedObject var viewModel = LoginViewModel()
+    @State private var errorMessage: String = ""
+    @Binding var isAuthenticated: Bool
+
     var body: some View {
-        NavigationView{
-            ScrollView{
-                Spacer(minLength: 30)
-                Text("FlickPost")
-                    .padding(.all)
-                    .font(.system(size: 40, weight: .bold, design: .serif))
-                    .bold()
-                    .foregroundStyle(Color(.white))
-                VStack(spacing: 30){
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 30) {
+                    Text("FlickPost")
+                        .padding(.all)
+                        .font(.system(size: 40, weight: .bold, design: .serif))
+                        .foregroundColor(.white)
+
                     TextField("Username", text: $username)
                         .padding(.all)
-                        .foregroundStyle(Color(.black))
                         .background(Color.white)
                         .cornerRadius(5)
                         .padding(.horizontal)
-                    ZStack{
-                        if isPasswordVisible{
+
+                    ZStack {
+                        if isPasswordVisible {
                             TextField("Password", text: $password)
                                 .padding(.all)
-                                .foregroundStyle(Color(hex: "#333333"))
                                 .background(Color.white)
                                 .cornerRadius(5)
                                 .padding(.horizontal)
-                            
                         } else {
                             SecureField("Password", text: $password)
                                 .padding(.all)
-                                .foregroundStyle(Color(hex: "#333333"))
                                 .background(Color.white)
                                 .cornerRadius(5)
                                 .padding(.horizontal)
                         }
-                        
+
                         HStack {
                             Spacer()
                             Button(action: {
@@ -59,28 +55,32 @@ struct LoginView : View {
                             .padding(.trailing, 20)
                         }
                     }
-                    
-                    HStack {
-//                        Button(action:{}){
-//                            Text("Login")
-//                                .foregroundStyle(Color(.white))
-//                                .padding(.all)
-//                        }
-                        NavigationLink(destination: HomeScreenView()) {
-                            Text("Login")
-                                .foregroundStyle(Color(.white))
-                                .padding(.all)
-                        }
-                        NavigationLink(destination: CreateAccountView()) {
-                            Text("Register")
-                                .foregroundStyle(Color(.white))
-                                .padding(.all)
-                        }
+
+                    Button(action: {
+                        loginUser()
+                    }) {
+                        Text("Login")
+                            .foregroundColor(.white)
+                            .padding(.all)
+                            .background(Color.blue)
+                            .cornerRadius(5)
+                    }
+
+                    if !errorMessage.isEmpty {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                    }
+
+                 
+                    NavigationLink(destination: CreateAccountView(isAuthenticated: $isAuthenticated)) {
+                        Text("Don't have an account? Create one")
+                            .foregroundColor(.blue)
+                            .padding(.top, 20)
                     }
                 }
             }
             .background(
-                LinearGradient (
+                LinearGradient(
                     gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -89,8 +89,23 @@ struct LoginView : View {
             )
         }
     }
+
+    func loginUser() {
+        Auth.auth().signIn(withEmail: username, password: password) { result, error in
+            if let error = error {
+                errorMessage = error.localizedDescription
+            } else {
+        
+                isAuthenticated = true  
+            }
+        }
+    }
 }
 
-#Preview {
-    LoginView()
-}
+
+
+
+
+
+
+

@@ -6,120 +6,104 @@
 //
 
 import SwiftUI
-import PhotosUI
+import FirebaseFirestore
 
-struct HomeScreenView : View {
-@ObservedObject var viewModel = PostViewModel()
-@State var isDoubledTapped: Bool = false
-@State var presentSearch : Bool = false
-@State private var isProfilePageViewActive: Bool = false
-@State var selectedPost : Post? = nil
-@State var photoPickerItem : PhotosPickerItem? = nil
+struct HomeScreenView: View {
+    @State private var posts: [Post] = []
+    @State private var isProfilePageViewActive: Bool = false
+    @State private var selectedPost: Post? = nil
+    @State private var isLoading = true
 
     var body: some View {
         NavigationView {
-                VStack {
-                    List(viewModel.posts){post in
-                        Text(post.username)
-                        AsyncImage(url: URL(string: "\(post.imageUrl)")){Image in
-                            Image
-                                .image?.scaledToFit()
-                        }.onTapGesture(count: 2) {
-                            isDoubledTapped = true
+            VStack {
+                if isLoading {
+                    ProgressView("Loading...")
+                        .progressViewStyle(CircularProgressViewStyle())
+                }
+                List(posts) { post in
+                    VStack(alignment: .leading) {
+                        Text(post.username).font(.headline)
+
+                  
+                        AsyncImage(url: URL(string: post.imageUrl)) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                            case .success(let image):
+                                image.resizable().scaledToFit()
+                                    .frame(height: 200)
+                            case .failure:
+                                Text("Failed to load image")
+                                    .foregroundColor(.red)
+                            @unknown default:
+                                EmptyView()
+                            }
                         }
-                        HStack (spacing: 10){
-                            Button (action: {
-                            }){
-                                Image(systemName: isDoubledTapped ? "heart.fill" : "heart")
-                                    .foregroundStyle(.black)
-                            }
-                            Text("\(post.likes)")
-                            Button (action: {}){
-                                Image(systemName: "message")
-                                    .foregroundStyle(.black)
-                            }
-                            Button (action: {}){
-                                Image(systemName: "paperplane")
-                                    .foregroundStyle(.black)
-                            }
-                        }
-                    Text("\(post.username) \(post.title)")
-                            .font(.subheadline)
-                            .bold()
+
+                        Text(post.title).font(.body)
+                        Text(post.body).font(.subheadline)
                     }
-                    .listStyle(PlainListStyle())
-                    .listRowInsets(EdgeInsets())
+                    .onTapGesture {
+                        selectedPost = post
+                        isProfilePageViewActive.toggle()
+                    }
                 }
-                .background(
-                    LinearGradient (
-                    gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .edgesIgnoringSafeArea(.all)
-                    )
-                .safeAreaInset(edge: .bottom , spacing: 10){
-                    HStack (spacing:10){
-                        
-                        Button(action: {
-                        }){
-                            Image(systemName: "house")
-                                .font(.system(size: 30))
-                                .foregroundStyle(.black)
-                                .frame(maxWidth:.infinity)
-                        }
-                        Button(action: {
-                            presentSearch.toggle()
-                        }){
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 30))
-                                .foregroundStyle(.black)
-                                .frame(maxWidth:.infinity)
-                        }
-                        PhotosPicker(selection: $photoPickerItem, label: {
-                            Image(systemName: "plus.app")
-                                .font(.system(size: 30))
-                                .foregroundStyle(.black)
-                                .frame(maxWidth:.infinity)
-                        })
-                        Button(action: {
-                            isProfilePageViewActive.toggle()
-                        }){
-                            Image(systemName: "person.circle")
-                                .font(.system(size: 30))
-                                .foregroundStyle(.black)
-                                .frame(maxWidth:.infinity)
-                        }
-                    }.background(.thinMaterial)
+                .onAppear {
+                    loadPosts()
                 }
-                .navigationTitle("FlickPost")
-                .navigationBarTitleDisplayMode(.large)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: {}) {
-                            Image(systemName: "heart")
-                                .foregroundStyle(.black)
+                .sheet(isPresented: $isProfilePageViewActive) {
+                    ProfilePageView()
                 }
             }
-                    ToolbarItem(placement: .topBarTrailing){
-                        Button(action: {}){
-                            Image(systemName: "paperplane")
-                                .foregroundStyle(.black)
+            .navigationTitle("FlickPost")
+            .navigationBarItems(trailing: Button(action: {
+    
+            }) {
+                Text("Profile")
+            })
+        }
+    }
+
+   
+    func loadPosts() {
+        let db = Firestore.firestore()
+        db.collection("posts").getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching posts: \(error.localizedDescription)")
+                return
+            }
+            guard let snapshot = snapshot else { return }
+            
+          
+            let postsData = snapshot.documents.compactMap { doc -> Post? in
+                try? doc.data(as: Post.self)
+            }
+            
+         
+            for (index, var post) in postsData.enumerated() {
+                let userId = post.userId
+                db.collection("users").document(userId).getDocument { userSnapshot, error in
+                    if let error = error {
+                        print("Error fetching user: \(error.localizedDescription)")
+                        return
+                    }
+                    if let userSnapshot = userSnapshot, let userData = userSnapshot.data() {
+                  
+                        post.username = userData["username"] as? String ?? "Unknown User"
+                    }
+                    
+              
+                    if index == postsData.count - 1 {
+                        self.posts = postsData
+                        self.isLoading = false
                     }
                 }
+            }
         }
-    } .onAppear {
-        viewModel.getData()
-    }.sheet(isPresented: $presentSearch){
-            SearchPageView()
-    }
-    .sheet(isPresented: $isProfilePageViewActive){
-        ProfilePageView()
-            .presentationDetents([.large])
-    }
     }
 }
-#Preview {
-    HomeScreenView()
-}
+
+
 

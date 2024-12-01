@@ -5,22 +5,15 @@
 //  Created by Tyler Watkins on 11/11/24.
 //
 
-import SwiftUI
+import Foundation
 
-struct Post : Codable, Identifiable {
-        let id: Int
-        let userId: Int
-        let title: String
-        let body: String
-        
-        // Additional Instagram-like properties
-        var imageUrl: String {
-            "https://picsum.photos/id/\(id)/400/400"
-        }
-        var likes: Int {
-            Int.random(in: 100...10000)
-        }
-        var username: String {
-            "user_\(userId)"
-        }
+struct Post: Identifiable, Codable {
+    var id: String
+    var userId: String
+    var title: String
+    var body: String
+    var imageUrl: String
+    var timestamp: Date
+    var username: String 
 }
+
