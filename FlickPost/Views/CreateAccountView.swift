@@ -7,56 +7,50 @@
 
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct CreateAccountView: View {
-    @State private var emailOrPhone: String = ""
+    @State private var email: String = ""
     @State private var name: String = ""
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var isPasswordVisible: Bool = false
     @State private var errorMessage: String = ""
-    @Binding var isAuthenticated: Bool  
+    @Binding var isAuthenticated: Bool
 
     var body: some View {
-        VStack(spacing: 30) {
-            Text("FlickPost")
-                .font(.system(size: 40, weight: .bold, design: .serif))
-                .foregroundColor(.white)
-            Text("Create an account to get started.")
-                .foregroundColor(.white)
+        VStack(spacing: 20) {
+            Text("Create Account")
+                .font(.largeTitle)
+                .bold()
 
             VStack(spacing: 15) {
-                TextField("Email or Phone Number", text: $emailOrPhone)
+                TextField("Email", text: $email)
                     .padding()
-                    .background(Color.white)
-                    .cornerRadius(5)
-                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.5))
-
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(8)
+                
                 TextField("Name", text: $name)
                     .padding()
-                    .background(Color.white)
-                    .cornerRadius(5)
-                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.5))
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(8)
 
                 TextField("Username", text: $username)
                     .padding()
-                    .background(Color.white)
-                    .cornerRadius(5)
-                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.5))
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(8)
 
                 ZStack {
                     if isPasswordVisible {
                         TextField("Password", text: $password)
                             .padding()
-                            .background(Color.white)
-                            .cornerRadius(5)
-                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.5))
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(8)
                     } else {
                         SecureField("Password", text: $password)
                             .padding()
-                            .background(Color.white)
-                            .cornerRadius(5)
-                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.5))
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(8)
                     }
 
                     HStack {
@@ -67,64 +61,73 @@ struct CreateAccountView: View {
                             Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
                                 .foregroundColor(.gray)
                         }
-                        .padding(.trailing, 20)
+                        .padding(.trailing, 16)
                     }
                 }
             }
-            .padding(.horizontal, 16)
 
             Button(action: {
                 createAccount()
             }) {
-                Text("Create Account")
-                    .foregroundColor(.white)
+                Text("Sign Up")
+                    .fontWeight(.bold)
                     .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
             }
 
             if !errorMessage.isEmpty {
                 Text(errorMessage)
                     .foregroundColor(.red)
             }
-
-            Spacer()
         }
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .edgesIgnoringSafeArea(.all)
-        )
+        .padding()
     }
 
     func createAccount() {
-        Auth.auth().createUser(withEmail: emailOrPhone, password: password) { result, error in
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if let error = error {
-                errorMessage = error.localizedDescription
-            } else {
-                print("Account created successfully.")  // Debugging
-                signInUser()  // Sign in the user immediately after account creation
+                self.errorMessage = "Failed to create account: \(error.localizedDescription)"
+                return
             }
+
+            // User created successfully
+            guard let user = authResult?.user else {
+                self.errorMessage = "Failed to fetch user details."
+                return
+            }
+
+            saveUserProfile(uid: user.uid)
         }
     }
 
-    func signInUser() {
-        // Sign the user in after account creation
-        Auth.auth().signIn(withEmail: emailOrPhone, password: password) { result, error in
+    func saveUserProfile(uid: String) {
+        let db = Firestore.firestore()
+        let userData: [String: Any] = [
+            "uid": uid,
+            "email": email,
+            "name": name,
+            "username": username,
+            "bio": "Welcome to FlickPost!",
+            "profileImageURL": ""  // Placeholder for profile image
+        ]
+
+        db.collection("users").document(uid).setData(userData) { error in
             if let error = error {
-                errorMessage = error.localizedDescription
+                self.errorMessage = "Failed to save profile: \(error.localizedDescription)"
             } else {
-                print("User signed in successfully.")  // Debugging
-                // Successfully signed in, update isAuthenticated
                 DispatchQueue.main.async {
-                    isAuthenticated = true
-                    print("isAuthenticated set to true.")  // Debugging
+                    self.isAuthenticated = true  
                 }
             }
         }
     }
 }
+
+
+
 
 
 

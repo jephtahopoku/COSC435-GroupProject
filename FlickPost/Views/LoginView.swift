@@ -12,7 +12,7 @@ struct LoginView: View {
     @State var password: String = ""
     @State private var isPasswordVisible: Bool = false
     @State private var errorMessage: String = ""
-    @Binding var isAuthenticated: Bool
+    @Binding var isAuthenticated: Bool  // Binding to update authentication state
 
     var body: some View {
         NavigationView {
@@ -71,7 +71,6 @@ struct LoginView: View {
                             .foregroundColor(.red)
                     }
 
-                 
                     NavigationLink(destination: CreateAccountView(isAuthenticated: $isAuthenticated)) {
                         Text("Don't have an account? Create one")
                             .foregroundColor(.blue)
@@ -95,13 +94,15 @@ struct LoginView: View {
             if let error = error {
                 errorMessage = error.localizedDescription
             } else {
-        
-                isAuthenticated = true  
+                print("User signed in successfully.")  // Debugging
+                DispatchQueue.main.async {
+                    isAuthenticated = true
+                    print("isAuthenticated set to true.")  // Debugging
+                }
             }
         }
     }
 }
-
 
 
 

@@ -6,53 +6,91 @@
 //
 
 
-import FirebaseAuth
+
 import SwiftUI
 import Firebase
-
+import FirebaseAuth 
 @main
 struct FlickPostApp: App {
-    @StateObject private var authState = AuthState()
+    @StateObject private var authState = AuthState()  // Track authentication state
 
     init() {
-      
-        FirebaseApp.configure()
-
-        // Debugging to check if user is authenticated at the start
-        if let user = Auth.auth().currentUser {
-            print("App initialized. User is already logged in: \(user.email ?? "No email")")
-        } else {
-            print("App initialized. No user logged in.")
-        }
+        FirebaseApp.configure()  // Initialize Firebase
     }
 
     var body: some Scene {
         WindowGroup {
-            // Check the authentication state and navigate accordingly
+            // Check if the user is authenticated and if their profile is complete
             if authState.isAuthenticated {
-                HomeScreenView()  // Show home screen if authenticated
+                if authState.isProfileComplete {
+                    HomeScreenView()  // Show home screen if authenticated and profile is complete
+                } else {
+                    ProfileSetupView(isAuthenticated: $authState.isAuthenticated)  // Profile setup for new users
+                }
             } else {
-                LoginView(isAuthenticated: $authState.isAuthenticated)  // Show login screen
+                LoginView(isAuthenticated: $authState.isAuthenticated)  // Show login view if not authenticated
             }
         }
     }
 }
 
-// Define an observable object to track authentication state
 class AuthState: ObservableObject {
     @Published var isAuthenticated = false
+    @Published var isProfileComplete = false
 
     init() {
-        // Debugging to check if the user is authenticated when the app starts
-        if Auth.auth().currentUser != nil {
-            self.isAuthenticated = true
-            print("User is authenticated at launch.")
-        } else {
-            self.isAuthenticated = false
-            print("User is not authenticated at launch.")
+        checkAuthentication()
+    }
+
+    func checkAuthentication() {
+        // Clear previous session for testing/development
+        Auth.auth().currentUser?.getIDTokenForcingRefresh(true) { _, error in
+            if let error = error {
+                print("Error refreshing token: \(error.localizedDescription)")
+            } else {
+                // Now check if user is authenticated
+                if let user = Auth.auth().currentUser {
+                    self.isAuthenticated = true
+                    print("User is authenticated at launch: \(user.email ?? "No email")")  // Debugging
+                    
+                    // Check if the user's profile is complete
+                    self.checkUserProfile()
+                } else {
+                    self.isAuthenticated = false
+                    self.isProfileComplete = false
+                    print("No user authenticated at launch.")  // Debugging
+                }
+            }
+        }
+    }
+
+    func checkUserProfile() {
+        let db = Firestore.firestore()
+        guard let userId = Auth.auth().currentUser?.uid else {
+            self.isProfileComplete = false
+            return
+        }
+
+        db.collection("users").document(userId).getDocument { (document, error) in
+            if let error = error {
+                print("Error checking profile: \(error.localizedDescription)")
+            } else {
+                if let document = document, document.exists {
+                    self.isProfileComplete = true  // If profile exists, set it to true
+                    print("User profile is complete.")
+                } else {
+                    self.isProfileComplete = false  // If profile is not set, ask for setup
+                    print("User profile is not complete.")
+                }
+            }
         }
     }
 }
+
+
+
+
+
 
 
 

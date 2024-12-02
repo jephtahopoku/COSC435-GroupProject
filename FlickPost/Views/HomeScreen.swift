@@ -21,11 +21,10 @@ struct HomeScreenView: View {
                     ProgressView("Loading...")
                         .progressViewStyle(CircularProgressViewStyle())
                 }
+
                 List(posts) { post in
                     VStack(alignment: .leading) {
                         Text(post.username).font(.headline)
-
-                  
                         AsyncImage(url: URL(string: post.imageUrl)) { phase in
                             switch phase {
                             case .empty:
@@ -59,14 +58,13 @@ struct HomeScreenView: View {
             }
             .navigationTitle("FlickPost")
             .navigationBarItems(trailing: Button(action: {
-    
+                // Navigation to profile setup if needed
             }) {
                 Text("Profile")
             })
         }
     }
 
-   
     func loadPosts() {
         let db = Firestore.firestore()
         db.collection("posts").getDocuments { snapshot, error in
@@ -75,35 +73,18 @@ struct HomeScreenView: View {
                 return
             }
             guard let snapshot = snapshot else { return }
-            
-          
+
             let postsData = snapshot.documents.compactMap { doc -> Post? in
                 try? doc.data(as: Post.self)
             }
-            
-         
-            for (index, var post) in postsData.enumerated() {
-                let userId = post.userId
-                db.collection("users").document(userId).getDocument { userSnapshot, error in
-                    if let error = error {
-                        print("Error fetching user: \(error.localizedDescription)")
-                        return
-                    }
-                    if let userSnapshot = userSnapshot, let userData = userSnapshot.data() {
-                  
-                        post.username = userData["username"] as? String ?? "Unknown User"
-                    }
-                    
-              
-                    if index == postsData.count - 1 {
-                        self.posts = postsData
-                        self.isLoading = false
-                    }
-                }
-            }
+
+            self.posts = postsData
+            self.isLoading = false  // Finished loading posts
         }
     }
 }
+
+
 
 
 
