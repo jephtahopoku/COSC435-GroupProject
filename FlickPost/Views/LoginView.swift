@@ -73,7 +73,7 @@ struct LoginView: View {
 
                     NavigationLink(destination: CreateAccountView(isAuthenticated: $isAuthenticated)) {
                         Text("Don't have an account? Create one")
-                            .foregroundColor(.blue)
+                            .foregroundColor(.white)
                             .padding(.top, 20)
                     }
                 }

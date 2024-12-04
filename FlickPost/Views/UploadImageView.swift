@@ -17,7 +17,6 @@ struct UploadImageView: View {
     var body: some View {
         VStack {
             PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
-                Text("Select an image")
             }
             .onChange(of: selectedItem) { newItem, _ in
                 Task {

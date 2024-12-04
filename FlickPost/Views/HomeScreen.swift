@@ -13,15 +13,23 @@ struct HomeScreenView: View {
     @State private var isProfilePageViewActive: Bool = false
     @State private var selectedPost: Post? = nil
     @State private var isLoading = true
-
+    @State private var imageUrl = ""
     var body: some View {
-        NavigationView {
+        TabView {
             VStack {
                 if isLoading {
                     ProgressView("Loading...")
                         .progressViewStyle(CircularProgressViewStyle())
                 }
-
+                
+                if posts.isEmpty {
+                    Text("You do not have any post, Click the plus to make a new post")
+                        .font(.headline)
+                        .padding()
+                        .foregroundStyle(.purple)
+                }
+                
+                
                 List(posts) { post in
                     VStack(alignment: .leading) {
                         Text(post.username).font(.headline)
@@ -40,7 +48,7 @@ struct HomeScreenView: View {
                                 EmptyView()
                             }
                         }
-
+                        
                         Text(post.title).font(.body)
                         Text(post.body).font(.subheadline)
                     }
@@ -56,13 +64,18 @@ struct HomeScreenView: View {
                     ProfilePageView()
                 }
             }
-            .navigationTitle("FlickPost")
-            .navigationBarItems(trailing: Button(action: {
-                // Navigation to profile setup if needed
-            }) {
-                Text("Profile")
-            })
+                .tabItem { Image(systemName: "house") }
+            SearchPageView()
+                .tabItem { Image(systemName: "magnifyingglass") }
+//            UploadImageView(imageUrl: imageUrl) {
+//                .tabItem { Image(systemName: "plus.app") }
+//            }
+            ProfilePageView()
+                .tabItem { Image(systemName: "person") }
+                .navigationTitle("FlickPost")
+            
         }
+        
     }
 
     func loadPosts() {
@@ -83,7 +96,6 @@ struct HomeScreenView: View {
         }
     }
 }
-
 
 
 

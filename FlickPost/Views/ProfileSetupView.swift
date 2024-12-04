@@ -21,62 +21,71 @@ struct ProfileSetupView: View {
     @Binding var isAuthenticated: Bool
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Set up your profile")
-                .font(.title)
-                .fontWeight(.bold)
-
-            TextField("Add a Bio", text: $bio)
-                .padding()
-                .background(Color.white)
-                .cornerRadius(5)
-                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.5))
-
-            // Profile Image Picker
-            PhotosPicker(
-                selection: $selectedItem,
-                matching: .images,
-                photoLibrary: .shared()) {
-                    Text("Select Profile Image")
-                }
-
-            // Handle image selection manually
-            Button("Choose Image") {
-                self.isImagePickerPresented = true
-            }
-            .photosPicker(isPresented: $isImagePickerPresented, selection: $selectedItem, matching: .images, photoLibrary: .shared())
-
-            if let profileImage {
-                Image(uiImage: profileImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 150)
-                    .clipShape(Circle())
+        NavigationStack{
+            VStack(spacing: 20) {
+                Text("Set up your profile")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.white)
+                
+                TextField("Add a Bio", text: $bio)
                     .padding()
-            }
-
-            Button(action: {
-                saveUserProfile()
-            }) {
-                Text("Save Profile")
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.blue)
+                    .background(Color.white)
                     .cornerRadius(5)
+                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.5))
+                
+                // Profile Image Picker
+                PhotosPicker(
+                    selection: $selectedItem,
+                    matching: .images,
+                    photoLibrary: .shared()) {
+                        Text("Select Profile Image")
+                            .foregroundStyle(Color.white)
+                    }
+                
+                // Handle image selection manually
+                Button("Choose Image") {
+                    self.isImagePickerPresented = true
+                }
+                .photosPicker(isPresented: $isImagePickerPresented, selection: $selectedItem, matching: .images, photoLibrary: .shared())
+                
+                if let profileImage {
+                    Image(uiImage: profileImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 150)
+                        .clipShape(Circle())
+                        .padding()
+                }
+                
+                Button(action: {
+                    saveUserProfile()
+                }) {
+                    Text("Save Profile")
+                        .foregroundColor(Color.white)
+                        .padding()
+                        .cornerRadius(5)
+                }
+                
+                NavigationLink(destination: HomeScreenView()) {
+                    Text("Skip Profile Setup")
+                        .foregroundColor(Color.white)
+                        .padding()
+                        .cornerRadius(5)
+                }
+                if isProfileSetUp {
+                    Text("Profile Setup Complete")
+                        .foregroundColor(.green)
+                }
             }
-
-            if isProfileSetUp {
-                Text("Profile Setup Complete")
-                    .foregroundColor(.green)
-            }
+            .padding()
+            .background(LinearGradient(
+                gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ))
+            .edgesIgnoringSafeArea(.all)
         }
-        .padding()
-        .background(LinearGradient(
-            gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ))
-        .edgesIgnoringSafeArea(.all)
     }
 
     func saveUserProfile() {

@@ -17,6 +17,7 @@ struct CreateAccountView: View {
     @State private var isPasswordVisible: Bool = false
     @State private var errorMessage: String = ""
     @Binding var isAuthenticated: Bool
+    @ObservedObject var createAccountViewModel = CreateAccountViewModel()
 
     var body: some View {
         VStack(spacing: 20) {
@@ -68,6 +69,7 @@ struct CreateAccountView: View {
 
             Button(action: {
                 createAccount()
+//                createAccountViewModel.createAccount(email: email, password: password, name: name, username: username)
             }) {
                 Text("Sign Up")
                     .fontWeight(.bold)
@@ -98,7 +100,6 @@ struct CreateAccountView: View {
                 self.errorMessage = "Failed to fetch user details."
                 return
             }
-
             saveUserProfile(uid: user.uid)
         }
     }
@@ -125,8 +126,10 @@ struct CreateAccountView: View {
         }
     }
 }
-
-
+//#Preview {
+//    CreateAccountView(isAuthenticated: .constant(true),
+//                      createAccountViewModel: CreateAccountViewModel())
+//}
 
 
 
