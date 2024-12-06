@@ -10,12 +10,8 @@ import FirebaseStorage
 
 class PostViewModel: ObservableObject {
     @Published var posts: [Post] = []
-    
-    
     func savePost(post: Post) {
         let db = Firestore.firestore()
-        
-   
         db.collection("posts").addDocument(data: [
             "userId": post.userId,
             "title": post.title,

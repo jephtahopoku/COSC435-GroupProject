@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import PhotosUI
+import FirebaseAuth
 
 struct CreatePostView: View {
     @ObservedObject var postViewModel = PostViewModel()
@@ -14,9 +16,40 @@ struct CreatePostView: View {
     @State private var imageUrl: String = ""
     @State private var isImagePickerPresented: Bool = false
     @State private var selectedImage: UIImage? = nil
+    @State private var selectedItem: PhotosPickerItem? = nil
+    @State private var isActionPresented: Bool = false
+    let currentUserID = Auth.auth().currentUser?.uid
+    let currentUserName = Auth.auth().currentUser?.displayName
 
     var body: some View {
         VStack {
+           
+            if let selectedImage {
+                Image(uiImage: selectedImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(1, contentMode: .fit)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+            } else {
+                VStack {
+                    Image(systemName: "photo.on.rectangle")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fit)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(10)
+            }
+            
+            PhotosPicker(selection: $selectedItem, matching: .images , photoLibrary: PHPhotoLibrary.shared()) {
+                Text(selectedImage == nil ? "Select a Photo" : "Change Photo")
+            }
+            
             TextField("Post Title", text: $title)
                 .padding()
                 .background(Color.gray.opacity(0.1))
@@ -28,16 +61,15 @@ struct CreatePostView: View {
                 .cornerRadius(5)
             
             Button(action: {
-               
                 if !title.isEmpty && !postBody.isEmpty {
                     let newPost = Post(
                         id: UUID().uuidString,
-                        userId: "UserID",
+                        userId: currentUserID!,
                         title: title,
                         body: postBody,
                         imageUrl: imageUrl,
                         timestamp: Date(),
-                        username: "Username"
+                        username: currentUserName!
                     )
                     postViewModel.savePost(post: newPost)
                 }
@@ -50,6 +82,17 @@ struct CreatePostView: View {
             }
             
           
+        }
+        .onChange(of: selectedItem) { _, _ in
+            Task{
+                if let selectedItem,
+                   let data = try? await selectedItem.loadTransferable(type: Data.self) {
+                    if let image = UIImage(data: data) {
+                        self.selectedImage = image
+                    }
+                }
+                selectedItem = nil
+            }
         }
         .padding()
     }

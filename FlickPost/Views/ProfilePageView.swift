@@ -8,7 +8,8 @@ struct ProfilePageView: View {
     @State private var postCount: Int = 0
     @State private var followerCount: Int = 0
     @State private var followingCount: Int = 0
-    @State private var profileName: String = "Loading..."
+    @State private var userName: String = "Loading..."
+    @State private var name: String = "Loading..."
     @State private var profileBio: String = "Loading..."
     @State private var profileImageUrl: String = ""
     @State private var posts: [String] = []
@@ -20,7 +21,7 @@ struct ProfilePageView: View {
             VStack(alignment: .leading, spacing: 16) {
                 
                 HStack {
-                    Text(selectedAccount)
+                    Text(userName)
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(.black)
@@ -44,11 +45,11 @@ struct ProfilePageView: View {
                         image.resizable()
                             .scaledToFit()
                             .clipShape(Circle())
-                            .frame(width: 80, height: 80)
+                            .frame(width: 90, height: 90)
                     } placeholder: {
                         Image(systemName: "person")
                             .font(.system(size: 40))
-                            .frame(width: 80, height: 80)
+                            .frame(width: 90, height: 90)
                         
                     }
                     .padding(.trailing)
@@ -80,7 +81,7 @@ struct ProfilePageView: View {
                 
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(profileName)
+                    Text(name)
                         .font(.title3)
                         .fontWeight(.bold)
                     Text(profileBio)
@@ -103,13 +104,10 @@ struct ProfilePageView: View {
                 }
                 .padding(.horizontal)
                 .sheet(isPresented: $isEditProfilePresented) {
-                    
-                    EditProfileView(selectedAccount: $selectedAccount, profileName: $profileName, profileBio: $profileBio)
+                    EditProfileView(selectedAccount: $selectedAccount, profileName: $userName, profileBio: $profileBio)
                 }
                 
                 Divider()
-                
-                
                 if posts.isEmpty {
                     VStack {
                         Image(systemName: "photo.on.rectangle.angled")
@@ -166,10 +164,11 @@ struct ProfilePageView: View {
             }
             
             DispatchQueue.main.async {
-                self.profileName = data["username"] as? String ?? "No Name"
+                self.userName = data["username"] as? String ?? "No Name"
                 self.profileBio = data["bio"] as? String ?? "No Bio"
+                self.name = data["name"] as? String ?? ""
                 if let imageUrl = data["profileImageURL"] as? String {
-                    profileImageUrl = imageUrl
+                    self.profileImageUrl = imageUrl
                     print("Profile Image URL: \(profileImageUrl)")
                 } else {
                     print("No profile image URL found.")
