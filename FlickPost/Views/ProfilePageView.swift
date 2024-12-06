@@ -14,7 +14,9 @@ struct ProfilePageView: View {
     @State private var profileImageUrl: String = ""
     @State private var posts: [String] = []
     @State private var isEditProfilePresented: Bool = false
+    @State private var isProfileOptionsPresented: Bool = false
     @State private var isLoading: Bool = true
+    
     
     var body: some View {
         NavigationView {
@@ -29,9 +31,9 @@ struct ProfilePageView: View {
                     Spacer()
                     
                     Button(action: {
-                        
+                        isProfileOptionsPresented = true
                     }) {
-                        Image(systemName: "plus.square")
+                        Image(systemName: "line.3.horizontal")
                             .font(.title)
                             .foregroundStyle(.black)
                     }
@@ -133,6 +135,9 @@ struct ProfilePageView: View {
                         .padding()
                     }
                 }
+            }
+            .fullScreenCover(isPresented: $isProfileOptionsPresented){
+                ProfileOptionsView()
             }
             .navigationBarBackButtonHidden(true)
             .navigationBarHidden(true)
