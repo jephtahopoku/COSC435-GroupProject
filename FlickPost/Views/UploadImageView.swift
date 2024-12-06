@@ -8,15 +8,24 @@
 import SwiftUI
 import PhotosUI
 import FirebaseStorage
+import FirebaseAuth
 
 struct UploadImageView: View {
-    @Binding var imageUrl: String?
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImageData: Data? = nil
 
     var body: some View {
         VStack {
             PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
+                
+            }
+            HStack {
+                Button  {
+                
+                } label: {
+                    Text("Next")
+                }
+
             }
             .onChange(of: selectedItem) { newItem, _ in
                 Task {
@@ -26,17 +35,13 @@ struct UploadImageView: View {
                     }
                 }
             }
-
-            if let imageUrl = imageUrl {
-                Text("Uploaded image URL: \(imageUrl)")
-                    .padding()
-            }
         }
     }
 
     func uploadImageToFirebase(imageData: Data) {
+        let currentUser = Auth.auth().currentUser!
         let storage = Storage.storage()
-        let storageRef = storage.reference().child("profile_images/\(UUID().uuidString).jpg")
+        let storageRef = storage.reference().child("user_posts/\(UUID().uuidString).jpg")
 
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
@@ -50,7 +55,7 @@ struct UploadImageView: View {
             storageRef.downloadURL { (url, error) in
                 if let url = url {
                     print("Image uploaded successfully! URL: \(url)")
-                    imageUrl = url.absoluteString 
+//                    imageUrl = url.absoluteString 
                 }
             }
         }

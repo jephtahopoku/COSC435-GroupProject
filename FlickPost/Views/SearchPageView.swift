@@ -10,7 +10,7 @@ import SwiftUI
 struct SearchPageView : View {
     @State var SearchString : String = ""
     var body: some View{
-        TabView {
+        NavigationView {
             Text ("Search Page")
         }
         .searchable(text: $SearchString)

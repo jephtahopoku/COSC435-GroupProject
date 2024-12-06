@@ -14,7 +14,7 @@ struct ProfilePageView: View {
     @State private var posts: [String] = []
     @State private var isEditProfilePresented: Bool = false
     @State private var isLoading: Bool = true
-
+    
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 16) {
@@ -24,11 +24,11 @@ struct ProfilePageView: View {
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(.black)
-
+                    
                     Spacer()
-
+                    
                     Button(action: {
-                       
+                        
                     }) {
                         Image(systemName: "plus.square")
                             .font(.title)
@@ -36,7 +36,7 @@ struct ProfilePageView: View {
                     }
                 }
                 .padding(.horizontal)
-
+                
                 
                 HStack(spacing: 16) {
                     
@@ -46,37 +46,38 @@ struct ProfilePageView: View {
                             .clipShape(Circle())
                             .frame(width: 80, height: 80)
                     } placeholder: {
-                        Circle()
-                            .fill(Color.gray)
+                        Image(systemName: "person")
+                            .font(.system(size: 40))
                             .frame(width: 80, height: 80)
+                        
                     }
                     .padding(.trailing)
-
+                    
                     VStack {
                         Text("\(postCount)")
                             .font(.system(size: 16))
                         Text("Posts")
                             .font(.system(size: 16))
                     }
-
+                    
                     VStack {
                         Text("\(followerCount)")
                             .font(.system(size: 16))
                         Text("Followers")
                             .font(.system(size: 16))
                     }
-
+                    
                     VStack {
                         Text("\(followingCount)")
                             .font(.system(size: 16))
                         Text("Following")
                             .font(.system(size: 16))
                     }
-
+                    
                     Spacer()
                 }
                 .padding(.horizontal)
-
+                
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(profileName)
@@ -87,8 +88,8 @@ struct ProfilePageView: View {
                         .foregroundColor(.black)
                 }
                 .padding(.horizontal)
-
-              
+                
+                
                 Button(action: {
                     isEditProfilePresented = true
                 }) {
@@ -105,10 +106,10 @@ struct ProfilePageView: View {
                     
                     EditProfileView(selectedAccount: $selectedAccount, profileName: $profileName, profileBio: $profileBio)
                 }
-
+                
                 Divider()
-
-              
+                
+                
                 if posts.isEmpty {
                     VStack {
                         Image(systemName: "photo.on.rectangle.angled")
@@ -142,61 +143,81 @@ struct ProfilePageView: View {
             }
         }
     }
-
+    
+    
     
     func fetchUserProfile() {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
-
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("User not authenticated.")
+            return
+        }
+        
         let db = Firestore.firestore()
-
+        
         db.collection("users").document(userId).getDocument { snapshot, error in
             if let error = error {
                 print("Error fetching profile: \(error.localizedDescription)")
-            } else if let data = snapshot?.data() {
-                profileName = data["username"] as? String ?? "No Name"
-                profileBio = data["bio"] as? String ?? "No Bio"
-                profileImageUrl = data["profileImage"] as? String ?? ""
+                return
+            }
+            
+            guard let data = snapshot?.data() else {
+                print("No profile data found for user \(userId).")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.profileName = data["username"] as? String ?? "No Name"
+                self.profileBio = data["bio"] as? String ?? "No Bio"
+                if let imageUrl = data["profileImageURL"] as? String {
+                    profileImageUrl = imageUrl
+                    print("Profile Image URL: \(profileImageUrl)")
+                } else {
+                    print("No profile image URL found.")
+                }
+                
+                
                 
                 fetchUserPosts(userId: userId)
                 fetchFollowerData(userId: userId)
             }
         }
-    }
-
-
-    func fetchUserPosts(userId: String) {
-        let db = Firestore.firestore()
-
-        db.collection("posts").whereField("userId", isEqualTo: userId).getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching posts: \(error.localizedDescription)")
-            } else {
-                posts = snapshot?.documents.compactMap { $0["title"] as? String } ?? []
-                postCount = posts.count
-                isLoading = false
+        
+        
+        
+        func fetchUserPosts(userId: String) {
+            let db = Firestore.firestore()
+            
+            db.collection("posts").whereField("userId", isEqualTo: userId).getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching posts: \(error.localizedDescription)")
+                } else {
+                    posts = snapshot?.documents.compactMap { $0["title"] as? String } ?? []
+                    postCount = posts.count
+                    isLoading = false
+                }
             }
         }
-    }
-
-   
-    func fetchFollowerData(userId: String) {
-        let db = Firestore.firestore()
-
-       
-        db.collection("users").document(userId).collection("followers").getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching followers: \(error.localizedDescription)")
-            } else {
-                followerCount = snapshot?.documents.count ?? 0
+        
+        
+        func fetchFollowerData(userId: String) {
+            let db = Firestore.firestore()
+            
+            
+            db.collection("users").document(userId).collection("followers").getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching followers: \(error.localizedDescription)")
+                } else {
+                    followerCount = snapshot?.documents.count ?? 0
+                }
             }
-        }
-
-       
-        db.collection("users").document(userId).collection("following").getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching following: \(error.localizedDescription)")
-            } else {
-                followingCount = snapshot?.documents.count ?? 0
+            
+            
+            db.collection("users").document(userId).collection("following").getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching following: \(error.localizedDescription)")
+                } else {
+                    followingCount = snapshot?.documents.count ?? 0
+                }
             }
         }
     }

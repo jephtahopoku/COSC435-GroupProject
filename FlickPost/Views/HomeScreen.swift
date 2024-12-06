@@ -7,75 +7,77 @@
 
 import SwiftUI
 import FirebaseFirestore
+import PhotosUI
 
 struct HomeScreenView: View {
     @State private var posts: [Post] = []
     @State private var isProfilePageViewActive: Bool = false
+    @State private var isMakePostActive: Bool = false
     @State private var selectedPost: Post? = nil
     @State private var isLoading = true
     @State private var imageUrl = ""
+    @State private var selectedImage: PhotosPickerItem? = nil
     var body: some View {
         TabView {
-            VStack {
-                if isLoading {
-                    ProgressView("Loading...")
-                        .progressViewStyle(CircularProgressViewStyle())
-                }
-                
-                if posts.isEmpty {
-                    Text("You do not have any post, Click the plus to make a new post")
-                        .font(.headline)
+                VStack {
+                    Text("FlickPost")
+                        .font(.title)
                         .padding()
-                        .foregroundStyle(.purple)
-                }
-                
-                
-                List(posts) { post in
-                    VStack(alignment: .leading) {
-                        Text(post.username).font(.headline)
-                        AsyncImage(url: URL(string: post.imageUrl)) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle())
-                            case .success(let image):
-                                image.resizable().scaledToFit()
-                                    .frame(height: 200)
-                            case .failure:
-                                Text("Failed to load image")
-                                    .foregroundColor(.red)
-                            @unknown default:
-                                EmptyView()
+                        .bold()
+                    Divider()
+                    if isLoading {
+                        ProgressView("Loading...")
+                            .progressViewStyle(CircularProgressViewStyle())
+                    }
+                    
+                    if posts.isEmpty {
+                        Text("You do not have any post, Click the plus to make a new post")
+                            .font(.headline)
+                            .padding()
+                            .foregroundStyle(.purple)
+                    }
+                    
+                    
+                    List(posts) { post in
+                        VStack(alignment: .leading) {
+                            Text(post.username).font(.headline)
+                            AsyncImage(url: URL(string: post.imageUrl)) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle())
+                                case .success(let image):
+                                    image.resizable().scaledToFit()
+                                        .frame(height: 200)
+                                case .failure:
+                                    Text("Failed to load image")
+                                        .foregroundColor(.red)
+                                @unknown default:
+                                    EmptyView()
+                                }
                             }
+                            
+                            Text(post.title).font(.body)
+                            Text(post.body).font(.subheadline)
                         }
-                        
-                        Text(post.title).font(.body)
-                        Text(post.body).font(.subheadline)
+                        .onTapGesture {
+                            selectedPost = post
+                            isProfilePageViewActive.toggle()
+                        }
                     }
-                    .onTapGesture {
-                        selectedPost = post
-                        isProfilePageViewActive.toggle()
+                    .onAppear {
+                        loadPosts()
                     }
                 }
-                .onAppear {
-                    loadPosts()
-                }
-                .sheet(isPresented: $isProfilePageViewActive) {
-                    ProfilePageView()
-                }
-            }
                 .tabItem { Image(systemName: "house") }
             SearchPageView()
                 .tabItem { Image(systemName: "magnifyingglass") }
-//            UploadImageView(imageUrl: imageUrl) {
-//                .tabItem { Image(systemName: "plus.app") }
-//            }
+            UploadImageView()
+                .tabItem { Image(systemName: "plus.app") }
             ProfilePageView()
                 .tabItem { Image(systemName: "person") }
-                .navigationTitle("FlickPost")
-            
+                
         }
-        
     }
 
     func loadPosts() {
