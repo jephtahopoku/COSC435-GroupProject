@@ -24,13 +24,19 @@ struct ProfileSetupView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .edgesIgnoringSafeArea(.all)
+                
                 VStack(spacing: 20) {
-                    Text("Set up your profile")
-                        .font(.title)
-                        .fontWeight(.bold)
+                    Text("Profile Setup")
+                        .font(.system(size: 40, weight: .bold, design: .serif))
                         .foregroundStyle(Color.white)
                     
-                    TextField("Add a Bio", text: $bio)
+                    TextField("Add Bio text here", text: $bio)
                         .padding()
                         .background(Color.white)
                         .cornerRadius(5)
@@ -42,7 +48,8 @@ struct ProfileSetupView: View {
                         matching: .images,
                         photoLibrary: .shared()) {
                             Text("Select Profile Image")
-                                .foregroundStyle(Color.white)
+                                .foregroundColor(Color.white)
+                                .padding()
                         }
                     if let profileImage {
                         Image(uiImage: profileImage)
@@ -59,14 +66,13 @@ struct ProfileSetupView: View {
                         Text("Save Profile")
                             .foregroundColor(Color.white)
                             .padding()
-                            .cornerRadius(5)
                     }
                     
                     Button(action : {
                         isHomePresented.toggle()
                     }) {
                         Text("Skip this step")
-                            .foregroundStyle(Color.white)
+                            .foregroundColor(Color.white)
                             .padding()
                     }
                     if isProfileSetUp {
@@ -82,6 +88,7 @@ struct ProfileSetupView: View {
                     }
                 }
                 .padding()
+                .padding(.bottom, 225)
                 .fullScreenCover(isPresented: $isHomePresented) {
                     HomeScreenView(isAuthenticated: $isAuthenticated)
                 }
@@ -96,12 +103,7 @@ struct ProfileSetupView: View {
                         selectedItem = nil
                     }
                 }
-            } .background(LinearGradient(
-                gradient: Gradient(colors: [Color.indigo, Color.purple, Color.blue, Color.green]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ))
-            .edgesIgnoringSafeArea(.all)
+            }
         }
     }
     
@@ -173,6 +175,11 @@ struct ProfileSetupView: View {
       }
     }
 }
+
+#Preview{
+    ProfileSetupView(isAuthenticated: .constant(false))
+}
+
 
 
 
