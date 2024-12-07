@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseFirestore
 import PhotosUI
+import FirebaseAuth
 
 struct HomeScreenView: View {
     @State private var posts: [Post] = []
@@ -36,8 +37,6 @@ struct HomeScreenView: View {
                             .padding()
                             .foregroundStyle(.purple)
                     }
-                    
-                    
                     List(posts) { post in
                         VStack(alignment: .leading) {
                             Text(post.username).font(.headline)
@@ -81,20 +80,52 @@ struct HomeScreenView: View {
     }
 
     func loadPosts() {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("🚨 User not authenticated.")
+            isLoading = false
+            return
+        }
+        
+        print("🔍 Attempting to fetch posts for userId: \(userId)")
+        
         let db = Firestore.firestore()
-        db.collection("posts").getDocuments { snapshot, error in
+        db.collection("posts")
+          .whereField("userId", isEqualTo: userId)
+          .getDocuments { snapshot, error in
+            
+            // Error handling
             if let error = error {
-                print("Error fetching posts: \(error.localizedDescription)")
+                print("🚨 Error fetching posts: \(error.localizedDescription)")
+                self.isLoading = false
                 return
             }
-            guard let snapshot = snapshot else { return }
-
-            let postsData = snapshot.documents.compactMap { doc -> Post? in
-                try? doc.data(as: Post.self)
+            
+            guard let snapshot = snapshot else {
+                print("🚨 No snapshot returned")
+                self.isLoading = false
+                return
             }
-
-            self.posts = postsData
-            self.isLoading = false  // Finished loading posts
+            
+            // Log number of documents
+            print("📄 Documents found: \(snapshot.documents.count)")
+            
+            let postsData = snapshot.documents.compactMap { doc -> Post? in
+                
+                do {
+                    let post = try doc.data(as: Post.self)
+                    print("✅ Decoded post: \(post)")
+                    return post
+                } catch {
+                    print("🚨 Failed to decode post: \(error)")
+                    return nil
+                }
+            }
+            
+            DispatchQueue.main.async {
+                self.posts = postsData
+                self.isLoading = false
+                print("🎉 Total posts loaded: \(postsData.count)")
+            }
         }
     }
 }

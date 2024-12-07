@@ -112,9 +112,15 @@ struct CreateAccountView: View {
             "name": name,
             "username": username,
             "bio": "Welcome to FlickPost!",
-            "profileImageURL": ""  // Placeholder for profile image
+            "profileImageURL": "", 
+            "postsIDs" : [],
+            "followers" : [],
+            "following" : [],
+            "followingCount" : 0,
+            "followerCount" : 0
+            
         ]
-
+        
         db.collection("users").document(uid).setData(userData) { error in
             if let error = error {
                 self.errorMessage = "Failed to save profile: \(error.localizedDescription)"
