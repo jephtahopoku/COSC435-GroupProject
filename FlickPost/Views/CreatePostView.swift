@@ -48,6 +48,7 @@ struct CreatePostView: View {
                 .cornerRadius(10)
             }
             
+            
             PhotosPicker(selection: $selectedItem, matching: .images , photoLibrary: PHPhotoLibrary.shared()) {
                 Text(selectedImage == nil ? "Select a Photo" : "Change Photo")
             }
