@@ -13,8 +13,8 @@ import FirebaseStorage
 
 struct CreatePostView: View {
     @ObservedObject var postViewModel = PostViewModel()
-    @State private var title: String = ""
-    @State private var postBody: String = ""
+    @State private var caption: String = ""
+    @State private var comments:  [Comments] = []
     @State private var imageUrl: String = ""
     @State private var isImagePickerPresented: Bool = false
     @State private var selectedImage: UIImage? = nil
@@ -22,6 +22,7 @@ struct CreatePostView: View {
     @State private var isActionPresented: Bool = false
     @State private var isPosted: Bool = false
     @State private var isHomePresented: Bool = false
+    @State private var username : String = ""
     @Binding var isAuthenticated: Bool
 
     var body: some View {
@@ -54,18 +55,14 @@ struct CreatePostView: View {
                 Text(selectedImage == nil ? "Select a Photo" : "Change Photo")
             }
             
-            TextField("Post Title", text: $title)
+            TextField("Post Title", text: $caption)
                 .padding()
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(5)
             
-            TextField("Post Body", text: $postBody)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(5)
             
             Button(action: {
-                if !title.isEmpty && !postBody.isEmpty {
+                if !caption.isEmpty {
                     savePost()
                     isHomePresented.toggle()
                 }
@@ -97,12 +94,13 @@ struct CreatePostView: View {
     }
     
     func clearPost() {
-        title = ""
-        postBody = ""
+        caption = ""
         selectedImage = nil
     }
     
     func savePost() {
+        
+        fetchUserName()
             
         guard let postImage = selectedImage else {
             print("No Post image selected.")
@@ -123,13 +121,13 @@ struct CreatePostView: View {
             let postData: [String: Any] = [
                 "id" : postRef.documentID,
                 "userId" : user?.uid ?? "",
-                "username" : user?.displayName ?? "",
-                "title" : title,
-                "body": postBody,
+                "username" : username,
+                "caption" : caption,
+                "comments": [],
                 "imageUrl" : imageUrl ?? "",
                 "timestamp" : Date(),
                  "likes" : 0,
-                 "likedBy " : [""]// Use empty string if image upload fails
+                 "likedBy " : []// Use empty string if image upload fails
             ]
 
             postRef.setData(postData) { error in
@@ -194,6 +192,31 @@ struct CreatePostView: View {
         }
     }
     
+    func fetchUserName() {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("User not authenticated.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(userId).getDocument { snapshot, error in
+            if let error = error {
+                print("Error fetching profile: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = snapshot?.data() else {
+                print("No profile data found for user \(userId).")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.username = data["username"] as? String ?? "No Name"
+                }
+            }
+        }
+        
 
 }
 

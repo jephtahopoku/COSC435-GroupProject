@@ -11,8 +11,8 @@ struct Post: Identifiable, Codable {
     var id: String
     var userId: String
     var username: String
-    var title: String
-    var body: String
+    var caption : String
+    var comments: [Comments]
     var imageUrl: String
     var timestamp: Date
     var likes : Int
@@ -23,8 +23,8 @@ struct Post: Identifiable, Codable {
             self.id = try container.decode(String.self, forKey: .id)
             self.userId = try container.decode(String.self, forKey: .userId)
             self.username = try container.decode(String.self, forKey: .username)
-            self.title = try container.decode(String.self, forKey: .title)
-            self.body = try container.decode(String.self, forKey: .body)
+            self.caption = try container.decode(String.self, forKey: .caption)
+            self.comments = try container.decodeIfPresent([Comments].self, forKey: .comments) ?? []
             self.imageUrl = try container.decode(String.self, forKey: .imageUrl)
             self.timestamp = try container.decode(Date.self, forKey: .timestamp)
             self.likes = try container.decode(Int.self, forKey: .likes)
