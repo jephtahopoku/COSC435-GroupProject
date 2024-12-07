@@ -72,7 +72,7 @@ struct HomeScreenView: View {
                 .tabItem { Image(systemName: "house") }
             SearchPageView()
                 .tabItem { Image(systemName: "magnifyingglass") }
-            CreatePostView()
+            CreatePostView(isAuthenticated: $isAuthenticated)
                 .tabItem { Image(systemName: "plus.app") }
             ProfilePageView(isAuthenticated: $isAuthenticated)
                 .tabItem { Image(systemName: "person") }

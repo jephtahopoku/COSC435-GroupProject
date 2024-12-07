@@ -22,6 +22,7 @@ struct CreatePostView: View {
     @State private var isActionPresented: Bool = false
     @State private var isPosted: Bool = false
     @State private var isHomePresented: Bool = false
+    @Binding var isAuthenticated: Bool
 
     var body: some View {
         VStack {
@@ -90,7 +91,7 @@ struct CreatePostView: View {
             }
         }
         .fullScreenCover(isPresented: $isHomePresented, content: {
-            HomeScreenView()
+            HomeScreenView(isAuthenticated: $isAuthenticated)
         })
         .padding()
     }
