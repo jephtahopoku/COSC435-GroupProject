@@ -9,7 +9,8 @@
 
 import SwiftUI
 import Firebase
-import FirebaseAuth 
+import FirebaseAuth
+
 @main
 struct FlickPostApp: App {
     @StateObject private var authState = AuthState()  // Track authentication state
@@ -23,7 +24,7 @@ struct FlickPostApp: App {
             // Check if the user is authenticated and if their profile is complete
             if authState.isAuthenticated {
                 if authState.isProfileComplete {
-                    HomeScreenView()  // Show home screen if authenticated and profile is complete
+                    HomeScreenView(isAuthenticated: $authState.isAuthenticated)  // Show home screen if authenticated and profile is complete
                 } else {
                     ProfileSetupView(isAuthenticated: $authState.isAuthenticated)  // Profile setup for new users
                 }
@@ -86,6 +87,7 @@ class AuthState: ObservableObject {
         }
     }
 }
+
 
 
 

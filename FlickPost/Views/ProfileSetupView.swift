@@ -22,7 +22,7 @@ struct ProfileSetupView: View {
     @State private var isHomePresented: Bool = false
     
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             ZStack {
                 VStack(spacing: 20) {
                     Text("Set up your profile")
@@ -53,15 +53,15 @@ struct ProfileSetupView: View {
                             .padding()
                     }
                     
-                        Button(action: {
-                            saveUserProfile()
-                        }) {
-                            Text("Save Profile")
-                                .foregroundColor(Color.white)
-                                .padding()
-                                .cornerRadius(5)
-                        }
-                
+                    Button(action: {
+                        saveUserProfile()
+                    }) {
+                        Text("Save Profile")
+                            .foregroundColor(Color.white)
+                            .padding()
+                            .cornerRadius(5)
+                    }
+                    
                     Button(action : {
                         isHomePresented.toggle()
                     }) {
@@ -83,7 +83,7 @@ struct ProfileSetupView: View {
                 }
                 .padding()
                 .fullScreenCover(isPresented: $isHomePresented) {
-                    HomeScreenView()
+                    HomeScreenView(isAuthenticated: $isAuthenticated)
                 }
                 .onChange(of: selectedItem) { _, _ in
                     Task{

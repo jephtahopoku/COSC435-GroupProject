@@ -16,6 +16,7 @@ struct ProfilePageView: View {
     @State private var isEditProfilePresented: Bool = false
     @State private var isProfileOptionsPresented: Bool = false
     @State private var isLoading: Bool = true
+    @Binding var isAuthenticated: Bool
     
     
     var body: some View {
@@ -137,7 +138,7 @@ struct ProfilePageView: View {
                 }
             }
             .fullScreenCover(isPresented: $isProfileOptionsPresented){
-                ProfileOptionsView()
+                ProfileOptionsView(isAuthenticated: $isAuthenticated)
             }
             .navigationBarBackButtonHidden(true)
             .navigationBarHidden(true)
@@ -225,10 +226,6 @@ struct ProfilePageView: View {
             }
         }
     }
-}
-
-#Preview {
-    ProfilePageView()
 }
 
 

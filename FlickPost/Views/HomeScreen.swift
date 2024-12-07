@@ -17,6 +17,7 @@ struct HomeScreenView: View {
     @State private var isLoading = true
     @State private var imageUrl = ""
     @State private var selectedImage: PhotosPickerItem? = nil
+    @Binding var isAuthenticated: Bool
     var body: some View {
         TabView {
                 VStack {
@@ -74,7 +75,7 @@ struct HomeScreenView: View {
                 .tabItem { Image(systemName: "magnifyingglass") }
             CreatePostView()
                 .tabItem { Image(systemName: "plus.app") }
-            ProfilePageView()
+            ProfilePageView(isAuthenticated: $isAuthenticated)
                 .tabItem { Image(systemName: "person") }
                 
         }

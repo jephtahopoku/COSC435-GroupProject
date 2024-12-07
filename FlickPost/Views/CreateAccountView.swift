@@ -85,7 +85,8 @@ struct CreateAccountView: View {
                     .foregroundColor(.red)
             }
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.bottom, 200)
     }
 
     func createAccount() {
@@ -126,10 +127,6 @@ struct CreateAccountView: View {
         }
     }
 }
-//#Preview {
-//    CreateAccountView(isAuthenticated: .constant(true),
-//                      createAccountViewModel: CreateAccountViewModel())
-//}
 
 
 

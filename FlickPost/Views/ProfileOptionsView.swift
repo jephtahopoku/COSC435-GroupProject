@@ -12,6 +12,7 @@ import FirebaseFirestore
 struct ProfileOptionsView: View {
     @State private var savedPosts: [String] = []
     @State private var likedPosts: [String] = []
+    @Binding var isAuthenticated: Bool
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -68,7 +69,8 @@ struct ProfileOptionsView: View {
     func logout() {
         do {
             try Auth.auth().signOut()
-            presentationMode.wrappedValue.dismiss()
+            isAuthenticated = false
+//            presentationMode.wrappedValue.dismiss()
             //needs further implementation logs out after leaving the app it doesn't push user to the login page when it is pressed
         } catch {
             print("Error signing out: \(error.localizedDescription)")
