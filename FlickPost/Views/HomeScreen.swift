@@ -17,11 +17,10 @@ struct HomeScreenView: View {
     @State private var selectedPost: Post? = nil
     @State private var isLoading = true
     @State private var isRefreshing = true
-    @State private var imageUrl = ""
-    @State private var selectedImage: PhotosPickerItem? = nil
     @State private var showingMoreOptions: Bool = false
-    @State private var showDeleteConfirm : Bool = false
+    @State private var showDeleteConfirm: Bool = false
     @Binding var isAuthenticated: Bool
+
     var body: some View {
         TabView {
             VStack {
@@ -35,25 +34,26 @@ struct HomeScreenView: View {
                     ProgressView("Loading...")
                         .progressViewStyle(CircularProgressViewStyle())
                 }
-                
+
                 if posts.isEmpty {
-                    Text("You do not have any post, Click the plus to make a new post")
+                    Text("You do not have any posts, Click the plus to make a new post")
                         .font(.headline)
                         .padding()
                         .foregroundStyle(.purple)
                 }
-                List($posts) { post in
+
+                List($posts) { $post in
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(post.username.wrappedValue).font(.headline)
+                            Text(post.username).font(.headline)
                                 .bold()
                                 .padding(.leading)
                                 .onTapGesture {
-                                    selectedPost = post.wrappedValue
+                                    selectedPost = post
                                     isProfilePageViewActive.toggle()
                                 }
                             Spacer()
-                            
+
                             Button {
                                 showingMoreOptions = true
                             } label: {
@@ -62,22 +62,21 @@ struct HomeScreenView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .confirmationDialog("Options", isPresented: $showingMoreOptions, titleVisibility: .visible) {
-                                Button("Delete Post", role: .destructive){
+                                Button("Delete Post", role: .destructive) {
                                     showDeleteConfirm = true
                                 }
-                                Button("Cancel", role: .cancel){}
-                                
-                            }.alert("Delete Posts", isPresented: $showDeleteConfirm) {
-                                Button("Delete", role: .destructive){
-                                    deletePost(post: post.wrappedValue)
+                                Button("Cancel", role: .cancel) {}
+                            }
+                            .alert("Delete Posts", isPresented: $showDeleteConfirm) {
+                                Button("Delete", role: .destructive) {
+                                    deletePost(post: post)
                                 }
                                 Button("Cancel", role: .cancel) {}
                             } message: {
-                                Text("Are You Sure You Want To Delete This Post?")
+                                Text("Are you sure you want to delete this post?")
                             }
-
                         }
-                        AsyncImage(url: URL(string: post.imageUrl.wrappedValue)) { phase in
+                        AsyncImage(url: URL(string: post.imageUrl)) { phase in
                             switch phase {
                             case .empty:
                                 ProgressView()
@@ -96,33 +95,30 @@ struct HomeScreenView: View {
                             }
                         }
                     }
-                    VStack (alignment: .leading){
-                        HStack (spacing: 20){
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 20) {
                             Button {
-                                if let index = posts.firstIndex(where: { $0.id == post.id }) {
-                                        posts[index].isLiked.toggle()
-                                        posts[index].likes += posts[index].isLiked ? 1 : -1
-                                    }
+                                toggleLike(post: &post)
                             } label: {
-                                Image(systemName: post.isLiked.wrappedValue ?  "heart.fill" : "heart")
-                                    .foregroundStyle(post.isLiked.wrappedValue ? .red : .black)
+                                Image(systemName: post.isLiked ? "heart.fill" : "heart")
+                                    .foregroundStyle(post.isLiked ? .red : .black)
                                     .imageScale(.large)
                             }
                             .buttonStyle(PlainButtonStyle())
-                            
-                            Text("\(post.likes.wrappedValue) likes ").font(.headline)
-                            
+
+                            Text("\(post.likes) likes").font(.headline)
+
                             Spacer()
                         }
                         HStack {
-                            Text(post.username.wrappedValue).font(.headline)
+                            Text(post.username).font(.headline)
                                 .onTapGesture {
-                                    selectedPost = post.wrappedValue
+                                    selectedPost = post
                                     isProfilePageViewActive.toggle()
                                 }
-                            Text(post.caption.wrappedValue).font(.body)
+                            Text(post.caption).font(.body)
                         }
-                        Text(post.timestamp.wrappedValue, style: .date).font(.caption)
+                        Text(post.timestamp, style: .date).font(.caption)
                             .foregroundStyle(.gray)
                     }
                 }
@@ -137,85 +133,93 @@ struct HomeScreenView: View {
                 .tabItem { Image(systemName: "plus.app") }
             ProfilePageView(isAuthenticated: $isAuthenticated)
                 .tabItem { Image(systemName: "person") }
-            
-        }.sheet(isPresented: $isProfilePageViewActive, content: { ProfilePageView(isAuthenticated:$isAuthenticated) })
-            .refreshable {
-                refreshPosts()
-            }
+        }
+        .sheet(isPresented: $isProfilePageViewActive, content: {
+            ProfilePageView(isAuthenticated: $isAuthenticated)
+        })
+        .refreshable {
+            refreshPosts()
+        }
     }
-    
+
+    func toggleLike(post: inout Post) {
+        guard let currentUserId = Auth.auth().currentUser?.uid else {
+            print("User not authenticated.")
+            return
+        }
+
+        let db = Firestore.firestore()
+        let postRef = db.collection("posts").document(post.id)
+
+        post.isLiked.toggle()
+        post.likes += post.isLiked ? 1 : -1
+
+        // Update Firestore
+        postRef.updateData([
+            "likes": post.likes,
+            "likedBy": post.isLiked
+                ? FieldValue.arrayUnion([currentUserId])
+                : FieldValue.arrayRemove([currentUserId])
+        ]) { error in
+            if let error = error {
+                print("Error updating likes: \(error.localizedDescription)")
+            } else {
+                print("Post like status updated.")
+            }
+        }
+    }
+
     func refreshPosts() {
         isRefreshing = true
-        
         loadPosts()
-        
         isRefreshing = false
     }
 
-    func deletePost(post:Post) {
-        
+    func deletePost(post: Post) {
         let db = Firestore.firestore()
-        
+
         db.collection("posts").document(post.id).delete { error in
-                    if let error = error {
-                        print("Error deleting post: \(error)")
-                    }
-                }
+            if let error = error {
+                print("Error deleting post: \(error)")
+            }
+        }
         loadPosts()
     }
 
     func loadPosts() {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            print("🚨 User not authenticated.")
-            isLoading = false
-            return
-        }
-        
-        print("🔍 Attempting to fetch posts for userId: \(userId)")
-        
         let db = Firestore.firestore()
-        db.collection("posts")
-//          .whereField("userId", isEqualTo: userId)
-          .getDocuments { snapshot, error in
-            
-            // Error handling
+        db.collection("posts").getDocuments { snapshot, error in
             if let error = error {
-                print("🚨 Error fetching posts: \(error.localizedDescription)")
+                print("Error fetching posts: \(error.localizedDescription)")
                 self.isLoading = false
                 return
             }
-            
-            guard let snapshot = snapshot else {
-                print("🚨 No snapshot returned")
+
+            guard let documents = snapshot?.documents else {
+                print("No posts found.")
                 self.isLoading = false
                 return
             }
-            
-            // Log number of documents
-            print("📄 Documents found: \(snapshot.documents.count)")
-            
-            let postsData = snapshot.documents.compactMap { doc -> Post? in
-                
+
+            let postsData = documents.compactMap { doc -> Post? in
                 do {
-                    let post = try doc.data(as: Post.self)
-                    print("✅ Decoded post: \(post)")
+                    var post = try doc.data(as: Post.self)
+                    post.isLiked = post.likedBy.contains(Auth.auth().currentUser?.uid ?? "")
                     return post
                 } catch {
-                    print("🚨 Failed to decode post: \(error)")
+                    print("Error decoding post: \(error)")
                     return nil
                 }
             }
-            
+
             DispatchQueue.main.async {
                 self.posts = postsData
                 self.isLoading = false
-                print("🎉 Total posts loaded: \(postsData.count)")
             }
         }
     }
-    
-    
 }
+
 
 
 

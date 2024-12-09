@@ -83,20 +83,20 @@ struct OtherUserProfileView: View {
                         .foregroundColor(.black)
                 }
                 .padding(.trailing, 30)
-                
-                Button(action: {
-                    isFollowing.toggle ()
-                    follow(targetUserID: uid)
-                }) {
-                    Text("Follow")
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isFollowing ? .white : Color.blue)
-                        .cornerRadius(8)
-                        .foregroundColor(isFollowing ? .blue : .white)
+                if isFollowing == false{
+                    Button(action: {
+                        isFollowing.toggle ()
+                        follow(targetUserID: uid)
+                    }) {
+                        Text("Follow")
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(isFollowing ? .white : Color.blue)
+                            .cornerRadius(8)
+                            .foregroundColor(isFollowing ? .blue : .white)
+                    }
                 }
-                
                 if isFollowing == true {
                     Button(action: {
                         isUnfollowing.toggle()
