@@ -31,6 +31,7 @@ struct HomeScreenView: View {
                     .padding()
                     .bold()
                 Divider()
+
                 if isLoading {
                     ProgressView("Loading...")
                         .progressViewStyle(CircularProgressViewStyle())
@@ -59,7 +60,9 @@ struct HomeScreenView: View {
                             } label: {
                                 Image(systemName: "ellipsis").font(.headline)
                                     .foregroundStyle(.black)
-                            }.confirmationDialog("Options", isPresented: $showingMoreOptions, titleVisibility: .visible) {
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .confirmationDialog("Options", isPresented: $showingMoreOptions, titleVisibility: .visible) {
                                 Button("Delete Post", role: .destructive){
                                     showDeleteConfirm = true
                                 }
@@ -106,7 +109,10 @@ struct HomeScreenView: View {
                                     .foregroundStyle(post.isLiked.wrappedValue ? .red : .black)
                                     .imageScale(.large)
                             }
+                            .buttonStyle(PlainButtonStyle())
+                            
                             Text("\(post.likes.wrappedValue) likes ").font(.headline)
+                            
                             Button {
                                 selectedPost = post.wrappedValue
                             } label: {
@@ -114,9 +120,11 @@ struct HomeScreenView: View {
                                     .foregroundStyle(.black)
                                     .imageScale(.large)
                             }
-                            Spacer()
+                            .buttonStyle(PlainButtonStyle())
                             
+                            Spacer()
                         }
+                        
                         HStack {
                             Text(post.username.wrappedValue).font(.headline)
                                 .onTapGesture {
@@ -222,6 +230,7 @@ struct HomeScreenView: View {
     
     
 }
+
 
 
 
