@@ -6,7 +6,8 @@
 //
 
 struct User : Codable, Identifiable {
-    let id: Int
+    let id: String
+    let bio: String
     let username: String
     let password : String
     let profileImage: String

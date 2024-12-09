@@ -34,9 +34,7 @@ struct SearchPageView: View {
    var resultsList: some View {
        List(searchResults, id: \.id) { user in
            NavigationLink(
-               destination: ProfilePageView(
-                   isAuthenticated: .constant(true)
-               )
+               destination: OtherUserProfileView(uid: user.id)
            ) {
                resultRow(user: user)
            }
@@ -107,6 +105,7 @@ struct SearchPageView: View {
 
                searchResults = documents.compactMap { doc -> User? in
                    guard let username = doc["username"] as? String,
+                         let bio = doc["bio"] as? String,
                          let name = doc["name"] as? String,
                          let profileImageURL = doc["profileImageURL"] as? String,
                          let followerCount = doc["followerCount"] as? Int,
@@ -116,7 +115,8 @@ struct SearchPageView: View {
                    }
 
                    return User(
-                       id: Int(uid.hashValue),
+                       id: String(uid.hashValue),
+                       bio: bio,
                        username: username,
                        password: "", // Optional field
                        profileImage: profileImageURL,
