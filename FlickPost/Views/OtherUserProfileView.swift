@@ -64,21 +64,52 @@ struct OtherUserProfileView: View {
     }
     
     func fetchUserProfile() {
-        let db = Firestore.firestore()
-        db.collection("users").document(uid).getDocument { document, error in
-            if let error = error {
-                print("Error fetching user profile: \(error.localizedDescription)")
-                isLoading = false
-                return
-            }
+            let db = Firestore.firestore()
             
-            if let document = document, document.exists {
-                let data = document.data()
-                if let username = data?["username"] as? String,
-                   let bio = data?["bio"] as? String,
-                   let profileImageURL = data?["profileImageURL"] as? String,
-                   let followerCount = data?["followerCount"] as? Int,
-                   let followingCount = data?["followingCount"] as? Int {
+            // Debug: Log the UID being used
+            print("Attempting to fetch user profile for UID: \(uid)")
+            
+            db.collection("users").document(uid).getDocument { document, error in
+                // Debug: Check for any errors in the fetch
+                if let error = error {
+                    print("❌ Error fetching user profile:")
+                    print("Error Domain: \(error.localizedDescription)")
+                    print("Error Code: \(error as NSError).code")
+                    print("Error UserInfo: \((error as NSError).userInfo)")
+                    isLoading = false
+                    return
+                }
+                
+                // Debug: Check document existence
+                guard let document = document, document.exists else {
+                    print("⚠️ Document does not exist for UID: \(uid)")
+                    isLoading = false
+                    return
+                }
+                
+                // Debug: Print entire document data
+                guard let data = document.data() else {
+                    print("❌ No data found in document")
+                    isLoading = false
+                    return
+                }
+                print("📋 Document Data: \(data)")
+                
+                // Debug: Detailed validation of each expected field
+                print("🔍 Validating document fields:")
+                print("Username: \(data["username"] ?? "NIL")")
+                print("Bio: \(data["bio"] ?? "NIL")")
+                print("Profile Image URL: \(data["profileImageURL"] ?? "NIL")")
+                print("Follower Count: \(data["followerCount"] ?? "NIL")")
+                print("Following Count: \(data["followingCount"] ?? "NIL")")
+                
+                // Detailed type checking and optional binding
+                if let username = data["username"] as? String,
+                   let bio = data["bio"] as? String,
+                   let profileImageURL = data["profileImageURL"] as? String,
+                   let followerCount = data["followerCount"] as? Int,
+                   let followingCount = data["followingCount"] as? Int {
+                    
                     self.user = User(
                         id: String(uid.hashValue),
                         bio: bio,
@@ -92,10 +123,20 @@ struct OtherUserProfileView: View {
                         posts: [], // Not used here
                         postsIDs: [] // Not used here
                     )
+                    
+                    print("✅ User profile successfully created")
+                } else {
+                    print("❌ Failed to create user profile - Type mismatch or missing fields")
+                    
+                    // Extra debug: Specific type mismatch information
+                    if data["username"] as? String == nil { print("❗ 'username' is not a String") }
+                    if data["bio"] as? String == nil { print("❗ 'bio' is not a String") }
+                    if data["profileImageURL"] as? String == nil { print("❗ 'profileImageURL' is not a String") }
+                    if data["followerCount"] as? Int == nil { print("❗ 'followerCount' is not an Int") }
+                    if data["followingCount"] as? Int == nil { print("❗ 'followingCount' is not an Int") }
                 }
+                
+                isLoading = false
             }
-            isLoading = false
         }
     }
-}
- 

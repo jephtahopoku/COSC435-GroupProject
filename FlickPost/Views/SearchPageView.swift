@@ -34,7 +34,7 @@ struct SearchPageView: View {
    var resultsList: some View {
        List(searchResults, id: \.id) { user in
            NavigationLink(
-               destination: OtherUserProfileView(uid: user.id)
+            destination: OtherUserProfileView(uid: user.id)
            ) {
                resultRow(user: user)
            }
@@ -115,7 +115,7 @@ struct SearchPageView: View {
                    }
 
                    return User(
-                       id: String(uid.hashValue),
+                        id: uid,
                        bio: bio,
                        username: username,
                        password: "", // Optional field
