@@ -17,10 +17,11 @@ struct HomeScreenView: View {
     @State private var isMakePostActive: Bool = false
     @State private var selectedPost: Post? = nil
     @State private var isLoading = true
+    @State private var isRefreshing = true
     @State private var imageUrl = ""
     @State private var selectedImage: PhotosPickerItem? = nil
-    @State private var likeAnimation = false
-    
+    @State private var showingMoreOptions: Bool = false
+    @State private var showDeleteConfirm : Bool = false
     @Binding var isAuthenticated: Bool
     var body: some View {
         TabView {
@@ -43,13 +44,37 @@ struct HomeScreenView: View {
                 }
                 List($posts) { post in
                     VStack(alignment: .leading) {
-                        Text(post.username.wrappedValue).font(.headline)
-                            .bold()
-                            .padding(.leading)
-                            .onTapGesture {
-                                selectedPost = post.wrappedValue
-                                isProfilePageViewActive.toggle()
+                        HStack {
+                            Text(post.username.wrappedValue).font(.headline)
+                                .bold()
+                                .padding(.leading)
+                                .onTapGesture {
+                                    selectedPost = post.wrappedValue
+                                    isProfilePageViewActive.toggle()
+                                }
+                            Spacer()
+                            
+                            Button {
+                                showingMoreOptions = true
+                            } label: {
+                                Image(systemName: "ellipsis").font(.headline)
+                                    .foregroundStyle(.black)
+                            }.confirmationDialog("Options", isPresented: $showingMoreOptions, titleVisibility: .visible) {
+                                Button("Delete Post", role: .destructive){
+                                    showDeleteConfirm = true
+                                }
+                                Button("Cancel", role: .cancel){}
+                                
+                            }.alert("Delete Posts", isPresented: $showDeleteConfirm) {
+                                Button("Delete", role: .destructive){
+                                    deletePost(post: post.wrappedValue)
+                                }
+                                Button("Cancel", role: .cancel) {}
+                            } message: {
+                                Text("Are You Sure You Want To Delete This Post?")
                             }
+
+                        }
                         AsyncImage(url: URL(string: post.imageUrl.wrappedValue)) { phase in
                             switch phase {
                             case .empty:
@@ -120,8 +145,30 @@ struct HomeScreenView: View {
             .sheet(isPresented: $isCommentsActive) {
                 CommentsView(post: $selectedPost)
             }
+            .refreshable {
+                refreshPosts()
+            }
+    }
+    
+    func refreshPosts() {
+        isRefreshing = true
+        
+        loadPosts()
+        
+        isRefreshing = false
     }
 
+    func deletePost(post:Post) {
+        
+        let db = Firestore.firestore()
+        
+        db.collection("posts").document(post.id).delete { error in
+                    if let error = error {
+                        print("Error deleting post: \(error)")
+                    }
+                }
+        loadPosts()
+    }
 
     func loadPosts() {
         guard let userId = Auth.auth().currentUser?.uid else {
@@ -172,6 +219,7 @@ struct HomeScreenView: View {
             }
         }
     }
+    
     
 }
 
