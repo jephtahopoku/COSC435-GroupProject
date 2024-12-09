@@ -117,6 +117,7 @@ struct SearchPageView: View {
                    return User(
                         id: uid,
                        bio: bio,
+                        name: name,
                        username: username,
                        password: "", // Optional field
                        profileImage: profileImageURL,

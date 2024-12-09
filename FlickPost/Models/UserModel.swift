@@ -8,6 +8,7 @@
 struct User : Codable, Identifiable {
     let id: String
     let bio: String
+    let name: String
     let username: String
     let password : String
     let profileImage: String

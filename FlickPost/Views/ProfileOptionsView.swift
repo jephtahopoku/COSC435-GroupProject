@@ -19,8 +19,6 @@ struct ProfileOptionsView: View {
         NavigationView {
             List {
                 Section(header: Text("Options")) {
-                    Text("Saved Posts")
-                    Text("Liked Posts")
                     Button("Logout") {
                         logout()
                     }
