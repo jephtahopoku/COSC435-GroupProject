@@ -11,8 +11,8 @@ struct User : Codable, Identifiable {
     let username: String
     let password : String
     let profileImage: String
-    let followers : [User]
-    let following : [User]
+    let followers : [String]
+    let following : [String]
     var followerCount : Int
     var followingCount : Int
     let posts : [Post]

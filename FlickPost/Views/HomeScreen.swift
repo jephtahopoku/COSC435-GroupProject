@@ -13,7 +13,6 @@ import FirebaseAuth
 struct HomeScreenView: View {
     @State private var posts: [Post] = []
     @State private var isProfilePageViewActive: Bool = false
-    @State private var isCommentsActive: Bool = false
     @State private var isMakePostActive: Bool = false
     @State private var selectedPost: Post? = nil
     @State private var isLoading = true
@@ -113,18 +112,8 @@ struct HomeScreenView: View {
                             
                             Text("\(post.likes.wrappedValue) likes ").font(.headline)
                             
-                            Button {
-                                selectedPost = post.wrappedValue
-                            } label: {
-                                Image(systemName: "message")
-                                    .foregroundStyle(.black)
-                                    .imageScale(.large)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
                             Spacer()
                         }
-                        
                         HStack {
                             Text(post.username.wrappedValue).font(.headline)
                                 .onTapGesture {
@@ -150,9 +139,6 @@ struct HomeScreenView: View {
                 .tabItem { Image(systemName: "person") }
             
         }.sheet(isPresented: $isProfilePageViewActive, content: { ProfilePageView(isAuthenticated:$isAuthenticated) })
-            .sheet(isPresented: $isCommentsActive) {
-                CommentsView(post: $selectedPost)
-            }
             .refreshable {
                 refreshPosts()
             }
@@ -189,7 +175,7 @@ struct HomeScreenView: View {
         
         let db = Firestore.firestore()
         db.collection("posts")
-          .whereField("userId", isEqualTo: userId)
+//          .whereField("userId", isEqualTo: userId)
           .getDocuments { snapshot, error in
             
             // Error handling

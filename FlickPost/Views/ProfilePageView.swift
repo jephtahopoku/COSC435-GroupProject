@@ -129,7 +129,6 @@ struct ProfilePageView: View {
                                         Text(post)
                                             .font(.caption)
                                     )
-                                
                             }
                         }
                         .padding()
@@ -142,6 +141,9 @@ struct ProfilePageView: View {
             .navigationBarBackButtonHidden(true)
             .navigationBarHidden(true)
             .onAppear {
+                fetchUserProfile()
+            }
+            .refreshable {
                 fetchUserProfile()
             }
         }
@@ -202,7 +204,7 @@ struct ProfilePageView: View {
         }
         
         
-        func fetchFollowerData(userId: String) {
+    func fetchFollowerData(userId: String) {
             let db = Firestore.firestore()
             
             
