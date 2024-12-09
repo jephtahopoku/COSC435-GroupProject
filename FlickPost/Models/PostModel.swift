@@ -13,6 +13,7 @@ struct Post: Identifiable, Codable {
     var username: String
     var caption : String
     var comments: [Comments]
+    var isLiked: Bool = false
     var imageUrl: String
     var timestamp: Date
     var likes : Int
@@ -25,6 +26,7 @@ struct Post: Identifiable, Codable {
             self.username = try container.decode(String.self, forKey: .username)
             self.caption = try container.decode(String.self, forKey: .caption)
             self.comments = try container.decodeIfPresent([Comments].self, forKey: .comments) ?? []
+            self.isLiked = try container.decode(Bool.self, forKey: .isLiked)
             self.imageUrl = try container.decode(String.self, forKey: .imageUrl)
             self.timestamp = try container.decode(Date.self, forKey: .timestamp)
             self.likes = try container.decode(Int.self, forKey: .likes)

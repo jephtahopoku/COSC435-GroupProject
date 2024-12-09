@@ -23,11 +23,16 @@ struct CreatePostView: View {
     @State private var isPosted: Bool = false
     @State private var isHomePresented: Bool = false
     @State private var username : String = ""
+    @State private var isCameraViewPresented : Bool = false
     @Binding var isAuthenticated: Bool
 
     var body: some View {
         VStack {
-           
+            Text("Create Post")
+                .font(.largeTitle)
+                .padding()
+                .bold()
+            
             if let selectedImage {
                 Image(uiImage: selectedImage)
                     .resizable()
@@ -54,6 +59,13 @@ struct CreatePostView: View {
             PhotosPicker(selection: $selectedItem, matching: .images , photoLibrary: PHPhotoLibrary.shared()) {
                 Text(selectedImage == nil ? "Select a Photo" : "Change Photo")
             }
+             
+            Button {
+                isCameraViewPresented.toggle()
+            } label: {
+                Text("Take A photo")
+            }
+
             
             TextField("Post Title", text: $caption)
                 .padding()
@@ -89,6 +101,9 @@ struct CreatePostView: View {
         }
         .fullScreenCover(isPresented: $isHomePresented, content: {
             HomeScreenView(isAuthenticated: $isAuthenticated)
+        })
+        .sheet(isPresented: $isCameraViewPresented, content: {
+            CameraView(selectedImage: $selectedImage)
         })
         .padding()
     }
@@ -127,7 +142,8 @@ struct CreatePostView: View {
                 "imageUrl" : imageUrl ?? "",
                 "timestamp" : Date(),
                  "likes" : 0,
-                 "likedBy " : []// Use empty string if image upload fails
+                 "likedBy " : [],
+                "isLiked" : false,
             ]
 
             postRef.setData(postData) { error in

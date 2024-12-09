@@ -18,9 +18,7 @@ struct ProfilePageView: View {
     @State private var isLoading: Bool = true
     @Binding var isAuthenticated: Bool
     
-    
     var body: some View {
-        NavigationView {
             VStack(alignment: .leading, spacing: 16) {
                 
                 HStack {
@@ -131,6 +129,7 @@ struct ProfilePageView: View {
                                         Text(post)
                                             .font(.caption)
                                     )
+                                
                             }
                         }
                         .padding()
@@ -146,7 +145,6 @@ struct ProfilePageView: View {
                 fetchUserProfile()
             }
         }
-    }
     
     
     
@@ -196,7 +194,7 @@ struct ProfilePageView: View {
                 if let error = error {
                     print("Error fetching posts: \(error.localizedDescription)")
                 } else {
-                    posts = snapshot?.documents.compactMap { $0["title"] as? String } ?? []
+                    posts = snapshot?.documents.compactMap { $0["caption"] as? String } ?? []
                     postCount = posts.count
                     isLoading = false
                 }

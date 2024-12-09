@@ -66,8 +66,8 @@ class PostViewModel: ObservableObject {
         db.collection("posts").addDocument(data: [
             "userId": post.userId,
             "username" : post.username,
-            "title": post.title,
-            "body": post.body,
+            "title": post.caption,
+            "comments": [post.comments],
             "imageUrl": post.imageUrl,
             "timestamp": post.timestamp,
             "likes" : post.likes,
