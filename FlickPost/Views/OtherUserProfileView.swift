@@ -15,41 +15,73 @@ struct OtherUserProfileView: View {
     var uid: String  // Passed from the SearchPageView to identify the user
     
     var body: some View {
-        VStack {
+        VStack (alignment: .leading, spacing: 16) {
             if let user = user {
-                // Profile Image
-                if let url = URL(string: user.profileImage), !user.profileImage.isEmpty {
-                    AsyncImage(url: url) { image in
-                        image.resizable()
-                            .scaledToFit()
-                            .clipShape(Circle())
-                            .frame(width: 100, height: 100)
-                    } placeholder: {
+                
+                HStack{
+                    //Username
+                    Text(user.username)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.black)
+                        .padding()
+                }
+                
+                HStack {
+                    //profile image
+                    if let url = URL(string: user.profileImage), !user.profileImage.isEmpty {
+                        AsyncImage(url: url) { image in
+                            image.resizable()
+                                .scaledToFit()
+                                .clipShape(Circle())
+                                .frame(width: 100, height: 100)
+                        } placeholder: {
+                            Circle().fill(Color.gray).frame(width: 100, height: 100)
+                        }
+                    } else {
+                        // Default image if no profile image exists
                         Circle().fill(Color.gray).frame(width: 100, height: 100)
                     }
-                } else {
-                    // Default image if no profile image exists
-                    Circle().fill(Color.gray).frame(width: 100, height: 100)
+
+                    
+                    // follower/following count
+                    VStack {
+                        Text("\(user.followerCount)")
+                            .font(.system(size: 16))
+                        Text("Followers")
+                            .font(.system(size: 16))
+                    }
+                    
+                    VStack{
+                        Text("\(user.followingCount)")
+                            .font(.system(size: 16))
+                        Text("Following")
+                            .font(.system(size: 16))
+                    }
+                    
                 }
+                .padding(.horizontal)
                 
-                // Username and Bio
-                Text(user.username)
-                    .font(.headline)
-                    .padding(.top, 10)
-                Text(user.bio)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 5)
-                
-                // follower/following count
-                HStack {
-                    Text("\(user.followerCount) followers")
-                        .font(.subheadline)
-                    Text("\(user.followingCount) following")
+                VStack(alignment: .leading, spacing: 8){
+                    // Username and Bio
+                    Text(user.bio)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .padding(.top, 5)
                 }
-                .padding(.top, 5)
+                .padding(.horizontal)
+                
+                Button(action: {
+                    
+                }) {
+                    Text("Follow")
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                        .foregroundColor(.black)
+                }.padding(.horizontal)
                 
                 Spacer()
             } else {
@@ -59,7 +91,6 @@ struct OtherUserProfileView: View {
         .onAppear {
             fetchUserProfile()
         }
-        .navigationTitle("Profile")
         .padding()
     }
     
